@@ -1,48 +1,17 @@
-from order import Order, OrderInfo
 from stocks import Stock, StockInfo
+from bot import Bot, BotMathInfo
+from order import Order, OrderInfo
 from time import time
-from numpy.random import normal
-import numpy as np
-import matplotlib.pyplot as plt
 
-norm = sorted(normal(1.0, 0.05, 1000))
-for index, num in enumerate(norm):
-    norm[index] = round(norm[index], 2)
+btc = Stock("BTC", StockInfo("Bitcoin", 3, "Crypto"))
+eth = Stock("BTC", StockInfo("Ethereum", 3.1, "Crypto"))
 
-sales = {}
-for num in norm:
-    if num not in sales:
-        sales[num] = 1
-    else:
-        sales[num] += 1
-
-sum = 0
-for price, shares in sales.items():
-    sum += price * shares
-print(round(sum / 1000, 2))
-print(sales)
-
-mu, sigma = norm[0], 0.05
-mu2, sigma2 = norm[-1], 0.05
-buy_dis = normal(mu, sigma, 1000)
-sell_dis = normal(mu2, sigma2, 1000)
-X = np.concatenate([buy_dis, sell_dis])
-print(X)
-plt.hist(X)
-plt.show()
-
-
-
-btc = Stock("BTC", StockInfo("Bitcoin", 1, "Crypto"))
-orders = [Order("1", "buy", OrderInfo(1.01, 5000, time(), False)),
-          Order("5", "sell", OrderInfo(1.01, 50, time(), False)),
-          Order("5", "sell", OrderInfo(1.01, 50, time(), False)),
-          Order("2", "buy", OrderInfo(0.98, 5000, time(), False)),
-          Order("3", "sell", OrderInfo(1.03, 5000, time(), False)),
-          Order("4", "sell", OrderInfo(0.97, 5000, time(), False))]
-
-for order in orders:
-    btc.info.append_order(order)
-
-btc.print_table()
-print(btc.info.calculate_share_price())
+btc_bot = Bot(btc, BotMathInfo((0.05, 0.05), (10000, 10000)))
+eth_bot = Bot(eth, BotMathInfo((0.05, 0.05), (10000, 10000)))
+btc_bot.generate_stock_bs_chart()
+eth_bot.generate_stock_bs_chart()
+print(btc.get_current_price())
+print(eth.get_current_price())
+eth.add_order(Order("1", "sell", OrderInfo(3, 3213, time(), False)))
+# eth.print_table()
+print(eth.info.calculate_share_price())

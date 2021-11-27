@@ -1,4 +1,4 @@
-from order import Order, OrderInfo
+from order import Order
 
 
 class StockInfo:
@@ -96,6 +96,12 @@ class Stock:
 
     def print_table(self):
         self.info.print_table()
+
+    def get_current_price(self):
+        return self.info.currentPrice
+
+    def add_order(self, order):
+        self.info.append_order(order)
 
     def __str__(self):
         return f"<{self.stockId}> " + self.info.__str__()
