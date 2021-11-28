@@ -1,4 +1,5 @@
 from order import Order
+import matplotlib.pyplot as plt
 
 
 class StockInfo:
@@ -7,11 +8,13 @@ class StockInfo:
     stockType: str
     buyOrders: dict
     sellOrders: dict
+    stock_data: list
 
-    def __init__(self, name, currentPrice, stockType):
+    def __init__(self, name, currentPrice, stockType, stock_data):
         self.name = name
         self.currentPrice = currentPrice
         self.stockType = stockType
+        self.stock_data = stock_data
         self.buyOrders = {}
         self.sellOrders = {}
 
@@ -68,6 +71,9 @@ class StockInfo:
                     print("{: >10} | {: >10} || {: >10} | {: >10}".format("-", "-", "-", "-"))
             checked.append(price)
 
+    def get_current_price(self, day):
+        return self.stock_data[day - 1]
+
     def calculate_share_price(self):
         summation = 0
         share_count = 0
@@ -88,20 +94,29 @@ class StockInfo:
 
 class Stock:
     stockId: int
+    day: int
     info: StockInfo
 
-    def __init__(self, stockId, info):
+    def __init__(self, stockId, info, day=1):
         self.stockId = stockId
         self.info = info
+        self.day = day
 
     def print_table(self):
         self.info.print_table()
 
     def get_current_price(self):
-        return self.info.currentPrice
+        return self.info.get_current_price(self.day)
 
     def add_order(self, order):
         self.info.append_order(order)
 
+    def plot_stock(self, days):
+        plt.plot(list(range(days)), self.info.stock_data)
+        plt.show()
+
     def __str__(self):
+        return f"<{self.stockId}> " + self.info.__str__()
+
+    def __repr__(self):
         return f"<{self.stockId}> " + self.info.__str__()
