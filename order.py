@@ -42,3 +42,6 @@ class Order:
 
     def __str__(self):
         return f"<{self.orderId}> {self.orderType} order for {self.info.price} placed at {self.info.timestamp}"
+
+    def __repr__(self):
+        return f"{self.info.shares} at {self.info.price}"

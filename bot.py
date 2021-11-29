@@ -1,19 +1,18 @@
-from numpy.random import normal
+from numpy.random import normal, seed
 import numpy as np
 from order import Order, OrderInfo
 from time import time
 from stocks import Stock
-
-
-def generate_normal_distribution_from_price(stock):
-    norm = sorted(normal(stock.get_current_price(), 0.05, 1000))
+import matplotlib.pyplot as plt
+def generate_normal_distribution_from_price(mean):
+    norm = sorted(normal(mean, 0.1, 1000))
     for index, num in enumerate(norm):
         norm[index] = round(norm[index], 2)
     return norm
 
 
 def generate_prob_distribution(stock):
-    norm = generate_normal_distribution_from_price(stock)
+    norm = generate_normal_distribution_from_price(stock.get_current_price())
 
     probability = {}
     for num in norm:
@@ -42,8 +41,8 @@ class BotMathInfo:
         self.sell_vol = vols[1]
 
     def set_sigmas(self, stock):
-        self.sigma_buy = generate_normal_distribution_from_price(stock)[0]
-        self.sigma_sell = generate_normal_distribution_from_price(stock)[-1]
+        self.sigma_buy = generate_normal_distribution_from_price(stock.get_current_price())[0]
+        self.sigma_sell = generate_normal_distribution_from_price(stock.get_current_price())[-1]
 
     def get_buy_info(self):
         return self.sigma_buy, self.mu_buy
@@ -72,10 +71,12 @@ class Bot:
         mu2, sigma2 = self.stats.get_sell_info()
         buy_dis = normal(mu, sigma, self.stats.get_buy_vol())
         sell_dis = normal(mu2, sigma2, self.stats.get_sell_vol())
-        bimodal = sorted(np.concatenate([buy_dis, sell_dis]))
+        bimodal = np.concatenate([buy_dis, sell_dis])
+
 
         for index, num in enumerate(bimodal):
             bimodal[index] = round(bimodal[index], 2)
+
         volume = {}
         for num in bimodal:
             if num not in volume:
@@ -89,3 +90,4 @@ class Bot:
                 self.stock.add_order(Order(f"{index}", "buy", info))
             else:
                 self.stock.add_order(Order(f"{index}", "sell", info))
+        return bimodal

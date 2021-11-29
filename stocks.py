@@ -4,22 +4,28 @@ import matplotlib.pyplot as plt
 
 class StockInfo:
     name: str
-    currentPrice: int
-    stockType: str
+    current_price: int
+    stock_type: str
     buyOrders: dict
     sellOrders: dict
     stock_data: list
+    processed_order_list: list
 
-    def __init__(self, name, currentPrice, stockType, stock_data):
+    def __init__(self, name, stock_type, stock_data):
         self.name = name
-        self.currentPrice = currentPrice
-        self.stockType = stockType
+        self.current_price = stock_data[0]
+        self.stock_type = stock_type
         self.stock_data = stock_data
+        self.checkpoint_price = stock_data[1]
+        self.processed_order_list = []
         self.buyOrders = {}
         self.sellOrders = {}
 
     def update_price(self, price):
-        self.currentPrice = price
+        self.current_price = price
+
+    def update_check_point(self, check_point):
+        self.checkpoint_price = self.stock_data[check_point]
 
     def append_order(self, order: Order):
         if order.get_type() == "buy":
@@ -71,8 +77,11 @@ class StockInfo:
                     print("{: >10} | {: >10} || {: >10} | {: >10}".format("-", "-", "-", "-"))
             checked.append(price)
 
-    def get_current_price(self, day):
-        return self.stock_data[day - 1]
+    def get_current_price(self):
+        return self.current_price
+
+    def get_next_checkpoint(self):
+        return self.checkpoint_price
 
     def calculate_share_price(self):
         summation = 0
@@ -89,7 +98,7 @@ class StockInfo:
         return summation / share_count
 
     def __str__(self):
-        return f"{self.name} stock ({self.stockType}) at {self.currentPrice}"
+        return f"{self.name} stock ({self.stock_type}) at {self.current_price}"
 
 
 class Stock:
@@ -97,16 +106,18 @@ class Stock:
     day: int
     info: StockInfo
 
-    def __init__(self, stockId, info, day=1):
+    def __init__(self, stockId, info):
         self.stockId = stockId
         self.info = info
-        self.day = day
 
     def print_table(self):
         self.info.print_table()
 
     def get_current_price(self):
-        return self.info.get_current_price(self.day)
+        return self.info.get_current_price()
+
+    def get_next_checkpoint(self):
+        return self.info.get_next_checkpoint()
 
     def add_order(self, order):
         self.info.append_order(order)
