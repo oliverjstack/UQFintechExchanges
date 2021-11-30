@@ -23,4 +23,7 @@ class Trader:
         self.stocks_owned[stock] += shares
 
     def remove_shares(self, stock, shares):
-        self.stocks_owned[stock] += shares
+        self.stocks_owned[stock] -= shares
+
+    def __eq__(self, other):
+        return self.cash == other.cash and self.stocks_owned == other.stocks_owned

@@ -1,8 +1,9 @@
 from player import Trader
+from stocks import Stock
 
 
 class Order:
-    stock: int
+    stock: Stock
     trader: Trader
     shares: int
     order_type: str
@@ -24,3 +25,12 @@ class Order:
 
     def get_type(self):
         return self.order_type
+
+    def __repr__(self):
+        return f"Order: {self.get_type()}:{self.get_shares()}:stock({self.get_stock().get_id()})"
+
+    def __eq__(self, other):
+        return self.trader == other.trader and \
+               self.order_type == other.order_type and \
+               self.stock.get_id() == other.stock.get_id() and \
+               self.shares == other.shares

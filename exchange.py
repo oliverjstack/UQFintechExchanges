@@ -1,4 +1,5 @@
 from bot import *
+from order import Order
 
 
 class Exchange:
@@ -27,18 +28,16 @@ class Exchange:
     def get_queued_orders(self):
         return self.order_queue
 
-    def process_order(self, order):
+    def process_order(self, order: Order):
         cash = order.get_shares() * self.get_stock(order.get_stock())[self.day] + \
-               (order.get_shares() * self.get_stock(order.get_stock())[self.day]) * self.bps
-        print(cash)
+               (order.get_shares() * self.get_stock(order.get_stock())[self.day] * self.bps)
         if order.get_type() == "buy":
             if can_buy(order.get_trader(), cash):
-                order.get_trader().update_cash(-1 * round(order.get_shares() * self.get_stock(order.get_stock())[
-                    self.day]))
-                order.get_trader().remove_shares(order.get_stock().get_id(), order.get_shares())
+                order.get_trader().update_cash(-1 * round(cash, 2))
+                order.get_trader().add_shares(order.get_stock().get_id(), order.get_shares())
         else:
             order.get_trader().update_cash(cash)
-            order.get_trader().add_shares(order.get_stock(), order.get_shares())
+            order.get_trader().remove_shares(order.get_stock(), order.get_shares())
 
     def tick(self):
         for order in self.order_queue:
