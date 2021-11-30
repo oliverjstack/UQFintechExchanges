@@ -1,45 +1,40 @@
 from bot import *
-from numpy.random import seed, randint, choice
-from bot import generate_normal_distribution_from_price
-from time import time
-import matplotlib.pyplot as plt
+from exchange import Exchange
+from player import Trader
+from order import Order
+from abc import ABC
+
+
+class EnvironmentSetup(ABC):
+    exchanges: list
+
+    def get_exchange(self, name) -> Exchange:
+        for exchange in self.exchanges:
+            if exchange.get_name() == name:
+                return exchange
+
+
+class LowDelayEnvironment(EnvironmentSetup):
+    def __init__(self):
+        self.exchanges = [Exchange("A", 2, 0.002),
+                          Exchange("B", 2, 0.002),
+                          Exchange("C", 2, 0.002),
+                          Exchange("D", 2, 0.002),
+                          Exchange("E", 2, 0.002)]
+
 
 stock_list = []
 for i in range(100):
     stock_list.append(generate_stock(i))
 
-normal_dist = generate_normal_distribution_from_price(stock_list[43])
-plot_for_check_y = []
-plot_for_check_x = []
-while stock_list[43].get_checkpoint_number() < STOCK_TIMELINE:
-    current_price, next_price = stock_list[43].get_current_price(), stock_list[43].get_next_checkpoint()
-    loop = 1
-    while True:
-        sell = True
-        if current_price < next_price:
-            bimodal = generate_sell_distribution(normal_dist)
-        else:
-            sell = False
-            bimodal = generate_buy_distribution(normal_dist)
-        start = time()
-        for i in range(50):
-            seed(i * loop)
-            order = round(choice(bimodal), 2)
-            if order > stock_list[43].get_current_price():
-                print(f"\033[31m sell {order}")
-            else:
-                print(f"\033[1;32m buy {order}")
-            plot_for_check_y.append(order)
-            plot_for_check_x.append(stock_list[43].get_checkpoint_number())
-            stock_list[43].update_current_price(order)
-        if (sell and stock_list[43].get_current_price() < stock_list[43].get_next_checkpoint()) or \
-                (not sell and stock_list[43].get_current_price() > stock_list[43].get_next_checkpoint()):
-            normal_dist = generate_normal_distribution_from_price(stock_list[43])
-            loop += 1
-        else:
-            stock_list[43].update_checkpoint()
-            break
-plt.scatter(plot_for_check_x, plot_for_check_y)
-plt.show()
-print(stock_list[43].get_current_price())
-print(stock_list[43].get_next_checkpoint())
+low = LowDelayEnvironment()
+
+test_trader_1 = Trader(10000)
+
+test_order = Order(stock_list[1], test_trader_1, 253, "buy")
+
+low.get_exchange("A").queue_order(test_order)
+low.get_exchange("A").tick()
+low.get_exchange("A").tick()
+
+print(test_trader_1.get_cash(), test_trader_1.get_shares_owned(1))
