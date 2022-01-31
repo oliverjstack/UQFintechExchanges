@@ -2,11 +2,18 @@ from numpy.random import normal, seed, randint
 from stocks import Stock
 import matplotlib.pyplot as plt
 
-STOCK_TIMELINE = 1095
+STOCK_TIMELINE = 750
 EXCHANGES = ["A", "B", "C", "D", "E"]
+
+# General functions used to support analysis and creation of the simulated stock world
 
 
 def generate_stock(seed_int):
+    """
+    Generates a stocks historic data for a given time period
+    :param seed_int: Seed for random function to utilize
+    :return: Stock object representing the newly generate stock
+    """
     seed(seed_int)
     k_main = 0.2
     epsilon_main = 0
@@ -29,15 +36,11 @@ def generate_stock(seed_int):
     return Stock(seed_int, main_stock_data, normal_dist_data, abnormal_data)
 
 
-def get_shares(price, processed_orders):
-    orders = processed_orders[price]
-    ret = 0
-    for order in orders:
-        ret += order.get_shares()
-    return ret
-
-
 def plot_stock(stock_data):
+    """
+    Plots given stock data
+    :param stock_data: Historical price data
+    """
     for i, stock in enumerate(stock_data):
         plt.plot(list(range(len(stock))), stock, label=f"{i}")
         plt.legend()
@@ -45,4 +48,10 @@ def plot_stock(stock_data):
 
 
 def can_buy(trader, required_cash):
+    """
+    Checks if trader can purchase shares given the required cash
+    :param trader: Trader wanting to purchase shares
+    :param required_cash: Required cash to purchase all shares
+    :return: Bool true iff they have enough money to purchase all shares
+    """
     return trader.get_cash() >= required_cash
